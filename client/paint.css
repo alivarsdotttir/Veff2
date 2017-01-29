@@ -1,58 +1,49 @@
-.Shape {
-    background-color: #9370DB;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    padding: 10px 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
+ul.dropdown-menu{
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 10rem;
+  padding: .5rem 0;
+  margin: 7px -85px 0px;
+  font-size: 1rem;
+  color: #B39DDB;
+  text-align: left;
+  list-style: none;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: .25rem;
 }
 
-.Event {
-    background-color: #9370DB;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    padding: 10px 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
+#toolBox{
+  margin-top:10px;
 }
 
-.Save {
-    background-color: #9370DB;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    padding: 10px 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
+.Shape{
+  background-color:#B39DDB;
+  color:#fff;
 }
 
-.Load {
-    background-color: #9370DB;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    padding: 10px 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
+.Shape:hover{
+  background-color:#673AB7;
 }
 
-select {
-    background-color: #9370DB;
-    color: white;
-    height: 29px;
-    overflow: hidden;
-    width: 240px;
-    -webkit-border-radius: 20px;
-    -moz-border-radius: 20px;
-    border-radius: 20px;
+.Shape:active{
+    background-color:#673AB7;
+}
+
+.Shape:focus{
+    background-color:#673AB7;
+}
+
+#loadFolder{
+  color:#fff;
+  margin-top:11px;
+}
+
+#canvasDrawing{
+  color:orange;
 }

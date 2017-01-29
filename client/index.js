@@ -1,9 +1,10 @@
-
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
 
 $(document).ready(function() {
-    var canvas = document.getElementById("myCanvas");
-    var ctx = canvas.getContext("2d");
-    //resizeCanvas();
+
+    resizeCanvas();
+    $(window).resize(resizeCanvas);
 
     var drawnShapes = [];
     var undoneShapes = [];
@@ -12,24 +13,20 @@ $(document).ready(function() {
     var isDrawing = false;
     var clickedShape = undefined;
     var clickedEvent = undefined;
-    var inputbox = undefined;
     var textbox = undefined;
     var typing = false;
-    var selectUndone = false;
 
     var dragOk = false;
-    var dragX;
-    var dragY;
     var mouseStartX;
     var mouseStartY;
-    var startX;
-    var startY;
     var val;
+
 
     var BB = canvas.getBoundingClientRect();
     var offsetX = BB.left;
     var offsetY = BB.top;
     clickedShape = "pen";
+    $("#pen").focus();
 
     document.getElementById('divtextbox').addEventListener('keypress', handleKeyPress);
     document.getElementById('divtextbox').addEventListener('keyup', handleKeyUp);
@@ -226,26 +223,20 @@ $(document).ready(function() {
         }
     });
 
-    $(".Event").click(function() {
-        clickedEvent = $(this).attr('id');
-        $(".Event").removeClass("active");
-        $(this).addClass("active");
+    //clear the canvas button
+    $("#clear").click(function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawnShapes = [];
+    });
 
-        switch (clickedEvent) {
-            case "undo":
-                undo();
-                break;
-            case "redo":
-                redo();
-                break;
-            case "clear":
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawnShapes = [];
-                break;
+    $("#undo").click(function() {
+        undo();
+    });
 
+    $("#redo").click(function() {
+        redo();
+    });
 
-        }
-    })
 
 
     //Section 4: Mouse functions
@@ -259,7 +250,7 @@ $(document).ready(function() {
         isDrawing = true;
 
 
-        var mx = e.clientX - offsetX; //parseInt(e.clientX - offsetX);
+        var mx = e.clientX - offsetX;
         var my = e.clientY - offsetY;
         dragOk = false;
 
@@ -314,7 +305,7 @@ $(document).ready(function() {
             var dx = mx - mouseStartX;
             var dy = my - mouseStartY;
 
-            // move each rect that isDragging 
+            // move each rect that isDragging
             // by the distance the mouse has moved
             // since the last mousemove
             for (var i = 0; i < drawnShapes.length; i++) {
@@ -406,10 +397,10 @@ $(document).ready(function() {
 
         for (var i = 0; i < drawnShapes.length; i++) {
             var s = drawnShapes[i];
-            // decide if the shape is a rect or circle               
+            // decide if the shape is a rect or circle
             if (s.shape === 'rect') {
                 // test if the mouse is inside this rect
-                if (mx > s.x && mx < s.x + s.width && my > s.y && my < s.y + s.height) {              
+                if (mx > s.x && mx < s.x + s.width && my > s.y && my < s.y + s.height) {
                     dragOk = true;
                     s.isDragging = true;
                 }
@@ -457,11 +448,11 @@ $(document).ready(function() {
 
         for (var i = 0; i < drawnShapes.length; i++) {
             var s = drawnShapes[i];
-            // decide if the shape is a rect or circle               
+            // decide if the shape is a rect or circle
             if (s.shape === 'rect') {
                 // test if the mouse is inside this rect
                 if (mx > s.x && mx < s.x + s.width && my > s.y && my < s.y + s.height) {
-                   drawnShapes.splice(i, 1);
+                    drawnShapes.splice(i, 1);
                 };
 
             } else if (s.shape === 'circle') {
@@ -521,24 +512,12 @@ $(document).ready(function() {
     }
 
 
-    /*function loadDoc() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                //document.getElementById("sTitle").innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", "ajax_info.txt", true);
-        xhttp.send();
-    }*/
-
     //Section 6: Saving and loading
 
     var url = "http://localhost:3000/api/drawings";
 
-    $(".Save").click(function() {
-        val = $('#sTitle').val();
-        document.getElementById("sTitle").value = ' ';
+    $("#Save").click(function() {
+        var val = $("#nameArt").val();
 
         var JSONdrawnShapes = JSON.stringify(drawnShapes);
         var drawing = {
@@ -552,13 +531,14 @@ $(document).ready(function() {
             url: url,
             data: JSON.stringify(drawing),
             success: function(data) {
-
-                drawnShapes = [];
+                $('#myModal').modal('hide');
+                alertify.success("Saved succesfully!");
 
                 // The drawing was successfully saved
             },
             error: function(xhr, err) {
                 console.log('Error occurred in the operation');
+                alertify.error("Could not save the drawing");
                 // The drawing could NOT be saved
             }
         });
@@ -571,13 +551,13 @@ $(document).ready(function() {
             var title = data[i]["title"];
             var id = data[i]["id"];
             html += "<li class='canvasDrawing' value=" + id + ' "><a href= #>' + title + "</a></li>";
-
         }
         return html;
     }
 
 
-    $(".Load").click(function() {
+    $("#Load").click(function() {
+
         var JSONdrawnShapes = JSON.stringify(drawnShapes);
         var drawing = {
             title: val,
@@ -707,28 +687,12 @@ $(document).ready(function() {
     }
 
     function resizeCanvas() {
-        ctx.canvas.width = window.innerWidth - 30;
-        if (ctx.canvas.height < window.innerHeight) {
-            ctx.canvas.height = window.innerHeight - 200;
-        }
-        var ratio = canvas.width / canvas.height;
 
-        var width = window.innerWidth - 5;
-        var height = window.innerHeight - 5;
+        var browserWidth = $(window).width();
+        var browserHeight = $(window).height();
 
-        if (width / height > ratio)
-            width = height * ratio;
-        else
-            height = width / ratio;
-
-        canvas.style.width = width;
-        canvas.style.height = height;
-
-        canvas.style.top = (window.innerHeight - height) / 2;
-        canvas.style.left = (window.innerWidth - width) / 2;
+        $("#myCanvas").attr("width", browserWidth);
+        $("#myCanvas").attr("height", browserHeight);
     }
-    resizeCanvas();
 
 });
-
-
