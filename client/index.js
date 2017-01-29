@@ -6,6 +6,7 @@ $(document).ready(function() {
     resizeCanvas();
     $(window).resize(resizeCanvas);
 
+    //array of drawn shapes on canvas
     var drawnShapes = [];
     var undoneShapes = [];
     var currShape = undefined;
@@ -186,6 +187,7 @@ $(document).ready(function() {
 
     //Section 2: Key presses
 
+    /*draw text on canvas when enter is pressed*/
     function handleKeyPress(e) {
         if (typing) {
             if (e.which == 13 || e.keyCode == 13) {
@@ -198,6 +200,7 @@ $(document).ready(function() {
         }
     }
 
+    /*remove textarea when esc is pressed*/
     function handleKeyUp(e) {
         if (e.which === 27 || e.keyCode === 27) {
             typing = false;
@@ -207,6 +210,7 @@ $(document).ready(function() {
 
     //Section 3: Click functions
 
+    /*set shape active from id of button pressed*/
     $(".Shape").click(function() {
         clickedShape = $(this).attr('id');
         $(".Shape").removeClass("active");
@@ -223,7 +227,7 @@ $(document).ready(function() {
         }
     });
 
-    //clear the canvas button
+    /*clear the canvas button*/
     $("#clear").click(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawnShapes = [];
@@ -241,6 +245,7 @@ $(document).ready(function() {
 
     //Section 4: Mouse functions
 
+    /* this function handles mousedown function on canvas */
     $("#myCanvas").mousedown(function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -288,6 +293,7 @@ $(document).ready(function() {
         }
     });
 
+    /* this function handles the mouse move action on canvas */
     $("#myCanvas").mousemove(function(e) {
 
         var x = e.clientX - offsetX;
@@ -296,6 +302,7 @@ $(document).ready(function() {
         if (dragOk) {
             e.preventDefault();
             e.stopPropagation();
+
             // get the current mouse position
             var mx = parseInt(e.clientX - offsetX);
             var my = parseInt(e.clientY - offsetY);
@@ -310,6 +317,7 @@ $(document).ready(function() {
             // since the last mousemove
             for (var i = 0; i < drawnShapes.length; i++) {
                 var s = drawnShapes[i];
+                //updates x and y position of each shape
                 if (s.isDragging) {
                     ctx.setLineDash([6]);
                     if (s.shape === 'line') {
@@ -369,6 +377,7 @@ $(document).ready(function() {
 
     });
 
+    /* this function handles the mouse up (mouse released) action on the canvas */
     $("#myCanvas").mouseup(function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -392,12 +401,13 @@ $(document).ready(function() {
 
     //Section 5: Event functions
 
+    /* this function is called when the select button is pressed and calculates which shape is selected to be moved */
     function select(mx, my) {
         isDrawing = false;
 
         for (var i = 0; i < drawnShapes.length; i++) {
             var s = drawnShapes[i];
-            // decide if the shape is a rect or circle
+            // decide what shape the selected shape is
             if (s.shape === 'rect') {
                 // test if the mouse is inside this rect
                 if (mx > s.x && mx < s.x + s.width && my > s.y && my < s.y + s.height) {
@@ -406,6 +416,7 @@ $(document).ready(function() {
                 }
 
             } else if (s.shape === 'circle') {
+                // test if the mouse is inside this circle
                 if (Math.pow(mx - s.x, 2) + Math.pow(my - s.y, 2) < Math.pow(s.radius, 2)) {
                     dragOk = true;
                     s.isDragging = true;
@@ -415,13 +426,15 @@ $(document).ready(function() {
                 var epsilon = 5;
                 var m = (s.y2 - s.y1) / (s.x2 - s.x1);
                 var b = s.y1 - m * s.x1;
+
+                //test if the mouse is on this line
                 if (Math.abs(my - (m * mx + b)) < epsilon) {
                     dragOk = true;
                     s.isDragging = true;
                 }
 
             } else if (s.shape === 'pen') {
-                //if (Math.abs(mx - s.penPoints[i].x) < 0.005 || Math.abs(my - s.penPoints[i].y) < 0.005) {
+                // test if the mouse is one the pen drawing
                 if (mx < s.maxX && mx > s.minX && my < s.maxY && my > s.minY) {
                     dragOk = true;
                     s.isDragging = true;
@@ -432,6 +445,7 @@ $(document).ready(function() {
                 var x = s.x + Number(s.size);
                 var y = s.y + Number(s.size);
 
+                //test if the mouse is on the text
                 if (mx >= x && mx <= x + width && my <= y && my >= y - Number(s.size)) {
                     dragOk = true;
                     s.isDragging = true;
@@ -442,13 +456,13 @@ $(document).ready(function() {
         mouseStartY = my;
     }
 
-
+    /* this function is called when the eraser button is pressed and calculates which shape is selected to be removed */
     function eraser(mx, my) {
         isDrawing = false;
 
         for (var i = 0; i < drawnShapes.length; i++) {
             var s = drawnShapes[i];
-            // decide if the shape is a rect or circle
+            // decide what shape the selected shape is
             if (s.shape === 'rect') {
                 // test if the mouse is inside this rect
                 if (mx > s.x && mx < s.x + s.width && my > s.y && my < s.y + s.height) {
@@ -456,6 +470,7 @@ $(document).ready(function() {
                 };
 
             } else if (s.shape === 'circle') {
+                // test if the mouse is inside this circle
                 if (Math.pow(mx - s.x, 2) + Math.pow(my - s.y, 2) < Math.pow(s.radius, 2)) {
                     drawnShapes.splice(i, 1);
                 }
@@ -464,11 +479,13 @@ $(document).ready(function() {
                 var epsilon = 5;
                 var m = (s.y2 - s.y1) / (s.x2 - s.x1);
                 var b = s.y1 - m * s.x1;
+                //test if the mouse is on this line
                 if (Math.abs(my - (m * mx + b)) < epsilon) {
                     drawnShapes.splice(i, 1);
                 }
 
             } else if (s.shape === 'pen') {
+                // test if the mouse is one the pen drawing
                 if (mx < s.maxX && mx > s.minX && my < s.maxY && my > s.minY) {
                     drawnShapes.splice(i, 1);;
                 }
@@ -478,6 +495,7 @@ $(document).ready(function() {
                 var x = s.x + Number(s.size);
                 var y = s.y + Number(s.size);
 
+                //test if the mouse is on the text
                 if (mx >= x && mx <= x + width && my <= y && my >= y - Number(s.size)) {
                     drawnShapes.splice(i, 1);
                 }
@@ -501,6 +519,7 @@ $(document).ready(function() {
             redraw();
         }
     }
+
 
     function redo() {
         if (undoneShapes.length === 0) {
@@ -537,6 +556,7 @@ $(document).ready(function() {
                 // The drawing was successfully saved
             },
             error: function(xhr, err) {
+                $('#myModal').modal('hide');
                 console.log('Error occurred in the operation');
                 alertify.error("Could not save the drawing");
                 // The drawing could NOT be saved
@@ -581,12 +601,13 @@ $(document).ready(function() {
         });
     });
 
+    /* this function retrieves the id of the drawing clicked to be loaded */
     $(document).on('click', '.canvasDrawing', function() {
         var id = $(this).val();
-        console.log("id: " + id);
         getDrawing(id);
     });
 
+    /* this function loads the drawing clicked */
     function getDrawing(id) {
         $.ajax({
             type: "GET",
@@ -610,6 +631,7 @@ $(document).ready(function() {
         });
     }
 
+    /* this function draws the shapes from the loaded drawing to the canvas */
     function drawObjects(objects) {
         for (var i = 0; i < objects.length; i++) {
             var shape = undefined;
@@ -686,10 +708,11 @@ $(document).ready(function() {
         return lineSize;
     }
 
+    /* resize the canvas to fit browser window */
     function resizeCanvas() {
 
         var browserWidth = $(window).width();
-        var browserHeight = $(window).height();
+        var browserHeight = $(window).height() - 100;
 
         $("#myCanvas").attr("width", browserWidth);
         $("#myCanvas").attr("height", browserHeight);
